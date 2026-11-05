@@ -3,7 +3,6 @@ package models
 import (
 	"testing"
 
-	"github.com/golang/geo/s2"
 	restapi "github.com/interuss/dss/pkg/api/scdv1"
 	"github.com/stretchr/testify/require"
 )
@@ -20,8 +19,6 @@ func TestSCDCircleCoveringDoesNotMissOverlap(t *testing.T) {
 	b, err := circleCellsFromSCDRest(mk(37.450505047, -122.003926497, 20))
 	require.NoError(t, err)
 
-	coveringA := s2.CellUnion(a)
-	coveringB := s2.CellUnion(b)
-	require.True(t, coveringA.Intersects(coveringB),
+	require.True(t, a.Intersects(b),
 		"SCD must index overlapping circular areas into intersecting cells")
 }
