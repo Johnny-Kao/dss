@@ -9,20 +9,23 @@ permissions:
 jobs:
   targeted-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: true
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
           cache: true
       - name: Check formatting
-        run: test -z "$(gofmt -l pkg/models/circle_covering_test.go)"
+        run: test -z "$(gofmt -l pkg/models/circle_covering_test.go pkg/scd/models/circle_covering_test.go pkg/scd/store/memstore/circle_covering_test.go)"
       - name: Circle regression and dependent packages
         run: go test -count=1 ./pkg/models ./pkg/scd/models ./pkg/scd/store/memstore ./pkg/rid/models/api/v1 ./pkg/rid/models/api/v2
+      - name: Repository Go lint (same as upstream CI)
+        run: make go-lint
       - name: Diff verification
         run: |
-          git diff --check HEAD~2 HEAD
+          git diff --check 958c45726f729b10a5e99494ea2241f5fbfcef1e HEAD
           git diff --name-only 958c45726f729b10a5e99494ea2241f5fbfcef1e HEAD
