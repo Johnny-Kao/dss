@@ -5,7 +5,6 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/golang/geo/s2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -35,8 +34,6 @@ func TestCircleCoveringIncludesBoundaryCells(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, slices.IsSorted(a))
 	require.True(t, slices.IsSorted(b))
-	coveringA := s2.CellUnion(a)
-	coveringB := s2.CellUnion(b)
-	require.True(t, coveringA.Intersects(coveringB),
+	require.True(t, a.Intersects(b),
 		"Geographically overlapping circles must have intersecting S2 coverings")
 }
