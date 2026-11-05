@@ -1,0 +1,26 @@
+name: PR 1914 staging verification
+on:
+  push:
+    branches:
+      - staging/pr-1914-review-tests
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  targeted-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Check formatting
+        run: test -z "$(gofmt -l pkg/models/circle_covering_test.go)"
+      - name: Circle regression and dependent packages
+        run: go test -count=1 ./pkg/models ./pkg/scd/models ./pkg/scd/store/memstore ./pkg/rid/models/api/v1 ./pkg/rid/models/api/v2
+      - name: Diff verification
+        run: |
+          git diff --check HEAD~2 HEAD
+          git diff --name-only 958c45726f729b10a5e99494ea2241f5fbfcef1e HEAD
