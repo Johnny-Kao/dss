@@ -1,0 +1,26 @@
+name: PR 1914 staging final validation
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - staging/pr-1914-review-final
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - name: Confirm requested test organization
+        run: |
+          test ! -f pkg/models/circle_covering_test.go
+          test ! -f pkg/scd/store/memstore/circle_covering_test.go
+          test -z "$(gofmt -l pkg/models/geo_test.go pkg/scd/store/memstore/operational_intents_test.go)"
+          git diff --check
+      - name: Relevant package suites
+        run: go test -count=1 ./pkg/models ./pkg/scd/models ./pkg/scd/store/memstore ./pkg/rid/models/api/v1 ./pkg/rid/models/api/v2
